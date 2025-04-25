@@ -5,127 +5,121 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace cli_life
-{
-    public class Cell
-    {
-        public bool IsAlive;
-        public readonly List<Cell> neighbors = new List<Cell>();
-        private bool IsAliveNext;
-        public void DetermineNextLiveState()
-        {
-            int liveNeighbors = neighbors.Where(x => x.IsAlive).Count();
-            if (IsAlive)
-                IsAliveNext = liveNeighbors == 2 || liveNeighbors == 3;
-            else
-                IsAliveNext = liveNeighbors == 3;
-        }
-        public void Advance()
-        {
-            IsAlive = IsAliveNext;
-        }
-    }
-    public class Board
-    {
-        public readonly Cell[,] Cells;
-        public readonly int CellSize;
+namespace cli_life {
+	public class Cell {
+		public bool isAlive;
+		public readonly List<Cell> neighbors = new List<Cell>();
+		private bool isAliveNext;
 
-        public int Columns { get { return Cells.GetLength(0); } }
-        public int Rows { get { return Cells.GetLength(1); } }
-        public int Width { get { return Columns * CellSize; } }
-        public int Height { get { return Rows * CellSize; } }
+		public void determineNextLiveState() {
+			int liveNeighbors = neighbors.Count(x => x.isAlive);
+			if (isAlive)
+				isAliveNext = liveNeighbors == 2 || liveNeighbors == 3;
+			else
+				isAliveNext = liveNeighbors == 3;
+		}
 
-        public Board(int width, int height, int cellSize, double liveDensity = .1)
-        {
-            CellSize = cellSize;
+		public void advance() {
+			isAlive = isAliveNext;
+		}
+	}
 
-            Cells = new Cell[width / cellSize, height / cellSize];
-            for (int x = 0; x < Columns; x++)
-                for (int y = 0; y < Rows; y++)
-                    Cells[x, y] = new Cell();
+	public class Board {
+		public readonly Cell[,] cells;
+		public readonly int cellSize;
 
-            ConnectNeighbors();
-            Randomize(liveDensity);
-        }
+		public int columns => cells.GetLength(0);
 
-        readonly Random rand = new Random();
-        public void Randomize(double liveDensity)
-        {
-            foreach (var cell in Cells)
-                cell.IsAlive = rand.NextDouble() < liveDensity;
-        }
+		public int rows => cells.GetLength(1);
 
-        public void Advance()
-        {
-            foreach (var cell in Cells)
-                cell.DetermineNextLiveState();
-            foreach (var cell in Cells)
-                cell.Advance();
-        }
-        private void ConnectNeighbors()
-        {
-            for (int x = 0; x < Columns; x++)
-            {
-                for (int y = 0; y < Rows; y++)
-                {
-                    int xL = (x > 0) ? x - 1 : Columns - 1;
-                    int xR = (x < Columns - 1) ? x + 1 : 0;
+		public int width => columns * cellSize;
 
-                    int yT = (y > 0) ? y - 1 : Rows - 1;
-                    int yB = (y < Rows - 1) ? y + 1 : 0;
+		public int height => rows * cellSize;
 
-                    Cells[x, y].neighbors.Add(Cells[xL, yT]);
-                    Cells[x, y].neighbors.Add(Cells[x, yT]);
-                    Cells[x, y].neighbors.Add(Cells[xR, yT]);
-                    Cells[x, y].neighbors.Add(Cells[xL, y]);
-                    Cells[x, y].neighbors.Add(Cells[xR, y]);
-                    Cells[x, y].neighbors.Add(Cells[xL, yB]);
-                    Cells[x, y].neighbors.Add(Cells[x, yB]);
-                    Cells[x, y].neighbors.Add(Cells[xR, yB]);
-                }
-            }
-        }
-    }
-    class Program
-    {
-        static Board board;
-        static private void Reset()
-        {
-            board = new Board(
-                width: 50,
-                height: 20,
-                cellSize: 1,
-                liveDensity: 0.5);
-        }
-        static void Render()
-        {
-            for (int row = 0; row < board.Rows; row++)
-            {
-                for (int col = 0; col < board.Columns; col++)   
-                {
-                    var cell = board.Cells[col, row];
-                    if (cell.IsAlive)
-                    {
-                        Console.Write('*');
-                    }
-                    else
-                    {
-                        Console.Write(' ');
-                    }
-                }
-                Console.Write('\n');
-            }
-        }
-        static void Main(string[] args)
-        {
-            Reset();
-            while(true)
-            {
-                Console.Clear();
-                Render();
-                board.Advance();
-                Thread.Sleep(1000);
-            }
-        }
-    }
+		public Board(int width, int height, int cellSize, double liveDensity = .1) {
+			this.cellSize = cellSize;
+
+			cells = new Cell[width / cellSize, height / cellSize];
+			for (int x = 0; x < columns; x++) {
+				for (int y = 0; y < rows; y++) {
+					cells[x, y] = new Cell();
+				}
+			}
+
+			connectNeighbors();
+			randomize(liveDensity);
+		}
+
+		readonly Random rand = new();
+
+		public void randomize(double liveDensity) {
+			foreach (var cell in cells)
+				cell.isAlive = rand.NextDouble() < liveDensity;
+		}
+
+		public void advance() {
+			foreach (var cell in cells)
+				cell.determineNextLiveState();
+			foreach (var cell in cells)
+				cell.advance();
+		}
+
+		private void connectNeighbors() {
+			for (int x = 0; x < columns; x++) {
+				for (int y = 0; y < rows; y++) {
+					int xL = (x > 0) ? x - 1 : columns - 1;
+					int xR = (x < columns - 1) ? x + 1 : 0;
+
+					int yT = (y > 0) ? y - 1 : rows - 1;
+					int yB = (y < rows - 1) ? y + 1 : 0;
+
+					cells[x, y].neighbors.Add(cells[xL, yT]);
+					cells[x, y].neighbors.Add(cells[x, yT]);
+					cells[x, y].neighbors.Add(cells[xR, yT]);
+					cells[x, y].neighbors.Add(cells[xL, y]);
+					cells[x, y].neighbors.Add(cells[xR, y]);
+					cells[x, y].neighbors.Add(cells[xL, yB]);
+					cells[x, y].neighbors.Add(cells[x, yB]);
+					cells[x, y].neighbors.Add(cells[xR, yB]);
+				}
+			}
+		}
+	}
+
+	class Program {
+		static Board board;
+
+		static private void reset() {
+			board = new Board(
+				width: 50,
+				height: 20,
+				cellSize: 1,
+				liveDensity: 0.5);
+		}
+
+		static void render() {
+			for (int row = 0; row < board.rows; row++) {
+				for (int col = 0; col < board.columns; col++) {
+					var cell = board.cells[col, row];
+					if (cell.isAlive) {
+						Console.Write('*');
+					} else {
+						Console.Write(' ');
+					}
+				}
+
+				Console.Write('\n');
+			}
+		}
+
+		static void Main(string[] args) {
+			reset();
+			while (true) {
+				Console.Clear();
+				render();
+				board.advance();
+				Thread.Sleep(1000);
+			}
+		}
+	}
 }

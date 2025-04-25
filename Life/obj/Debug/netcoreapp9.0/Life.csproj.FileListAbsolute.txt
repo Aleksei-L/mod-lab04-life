@@ -1,0 +1,15 @@
+/home/aleksei/Projects/mod-lab04-life/Life/bin/Debug/netcoreapp9.0/Life
+/home/aleksei/Projects/mod-lab04-life/Life/bin/Debug/netcoreapp9.0/Life.deps.json
+/home/aleksei/Projects/mod-lab04-life/Life/bin/Debug/netcoreapp9.0/Life.runtimeconfig.json
+/home/aleksei/Projects/mod-lab04-life/Life/bin/Debug/netcoreapp9.0/Life.dll
+/home/aleksei/Projects/mod-lab04-life/Life/bin/Debug/netcoreapp9.0/Life.pdb
+/home/aleksei/Projects/mod-lab04-life/Life/obj/Debug/netcoreapp9.0/Life.GeneratedMSBuildEditorConfig.editorconfig
+/home/aleksei/Projects/mod-lab04-life/Life/obj/Debug/netcoreapp9.0/Life.AssemblyInfoInputs.cache
+/home/aleksei/Projects/mod-lab04-life/Life/obj/Debug/netcoreapp9.0/Life.AssemblyInfo.cs
+/home/aleksei/Projects/mod-lab04-life/Life/obj/Debug/netcoreapp9.0/Life.csproj.CoreCompileInputs.cache
+/home/aleksei/Projects/mod-lab04-life/Life/obj/Debug/netcoreapp9.0/Life.sourcelink.json
+/home/aleksei/Projects/mod-lab04-life/Life/obj/Debug/netcoreapp9.0/Life.dll
+/home/aleksei/Projects/mod-lab04-life/Life/obj/Debug/netcoreapp9.0/refint/Life.dll
+/home/aleksei/Projects/mod-lab04-life/Life/obj/Debug/netcoreapp9.0/Life.pdb
+/home/aleksei/Projects/mod-lab04-life/Life/obj/Debug/netcoreapp9.0/Life.genruntimeconfig.cache
+/home/aleksei/Projects/mod-lab04-life/Life/obj/Debug/netcoreapp9.0/ref/Life.dll

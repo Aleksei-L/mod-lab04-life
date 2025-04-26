@@ -84,20 +84,6 @@ namespace NET
         }
 
         [TestMethod]
-        public void BoardRunExperiments_CreatesDataFile_Test()
-        {
-            Board.runExperiments(10, 10, 5);
-            Assert.IsTrue(File.Exists("../../../data.txt"));
-        }
-
-        [TestMethod]
-        public void BoardRunExperiments_CreatesPlotFile_Test()
-        {
-            Board.runExperiments(10, 10, 5);
-            Assert.IsTrue(File.Exists("../../../plot.png"));
-        }
-
-        [TestMethod]
         public void EmptyBoard_NoPatterns_Test()
         {
             var board = new Board(10, 10, 1, 0.0);

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.IO;
-using System.Text;
 using System.Threading;
 
 namespace cli_life {
@@ -105,6 +104,39 @@ namespace cli_life {
 				board.cells[x, y].isAlive = lines[y][x] == '1';
 			return board;
 		}
+
+		public int countLiveCells() {
+			int counter = 0;
+			foreach (var cell in cells) {
+				if (cell.isAlive)
+					counter++;
+			}
+
+			return counter;
+		}
+
+		public int countCombinations() {
+			var visited = new HashSet<Cell>();
+			int combos = 0;
+			foreach (var cell in cells) {
+				if (cell.isAlive && !visited.Contains(cell)) {
+					combos++;
+					var stack = new Stack<Cell>();
+					stack.Push(cell);
+					while (stack.Count > 0) {
+						var c = stack.Pop();
+						if (!visited.Add(c))
+							continue;
+						foreach (var n in c.neighbors) {
+							if (n.isAlive && !visited.Contains(n))
+								stack.Push(n);
+						}
+					}
+				}
+			}
+
+			return combos;
+		}
 	}
 
 	class Program {
@@ -130,6 +162,7 @@ namespace cli_life {
 				for (int col = 0; col < board.columns; col++) {
 					Console.Write(board.cells[col, row].isAlive ? '*' : '.');
 				}
+
 				Console.Write('\n');
 			}
 		}
@@ -145,11 +178,17 @@ namespace cli_life {
 			while (true) {
 				Console.Clear();
 				render();
+
 				if (Console.KeyAvailable) {
 					var key = Console.ReadKey(true).Key;
 					if (key == ConsoleKey.P) {
 						board.saveState("../../../pause_state.txt");
 						Console.WriteLine("Поле сохранено в pause_state.txt");
+
+						int live = board.countLiveCells();
+						int combos = board.countCombinations();
+						Console.WriteLine($"Живых клеток: {live}, комбинаций: {combos}");
+
 						Console.Write("Продолжить? (Y/N): ");
 						while (true) {
 							var choice = Console.ReadKey(true).Key;

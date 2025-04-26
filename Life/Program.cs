@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
 
 namespace cli_life {
+	public class Settings {
+		public int width { get; set; }
+		public int height { get; set; }
+		public double liveDensity { get; set; }
+	}
+
 	public class Cell {
 		public bool isAlive;
 		public readonly List<Cell> neighbors = new List<Cell>();
@@ -29,22 +36,16 @@ namespace cli_life {
 		public readonly int cellSize;
 
 		public int columns => cells.GetLength(0);
-
 		public int rows => cells.GetLength(1);
-
 		public int width => columns * cellSize;
-
 		public int height => rows * cellSize;
 
 		public Board(int width, int height, int cellSize, double liveDensity = .1) {
 			this.cellSize = cellSize;
-
 			cells = new Cell[width / cellSize, height / cellSize];
-			for (int x = 0; x < columns; x++) {
-				for (int y = 0; y < rows; y++) {
-					cells[x, y] = new Cell();
-				}
-			}
+			for (int x = 0; x < columns; x++)
+			for (int y = 0; y < rows; y++)
+				cells[x, y] = new Cell();
 
 			connectNeighbors();
 			randomize(liveDensity);
@@ -84,36 +85,63 @@ namespace cli_life {
 				}
 			}
 		}
+
+		public void saveState(string filename) {
+			using var writer = new StreamWriter(filename);
+			for (int y = 0; y < rows; y++) {
+				for (int x = 0; x < columns; x++)
+					writer.Write(cells[x, y].isAlive ? '1' : '0');
+				writer.WriteLine();
+			}
+		}
+
+		public static Board loadState(string filename) {
+			var lines = File.ReadAllLines(filename);
+			int rows = lines.Length;
+			int columns = lines[0].Length;
+			var board = new Board(columns, rows, 1, 0);
+			for (int y = 0; y < rows; y++)
+			for (int x = 0; x < columns; x++)
+				board.cells[x, y].isAlive = lines[y][x] == '1';
+			return board;
+		}
 	}
 
 	class Program {
 		static Board board;
+		static Settings settings;
 
-		static private void reset() {
+		static void loadSettings() {
+			var json = File.ReadAllText("../../../settings.json");
+			settings = JsonSerializer.Deserialize<Settings>(json);
+		}
+
+		static void reset() {
 			board = new Board(
-				width: 50,
-				height: 20,
+				width: settings.width,
+				height: settings.height,
 				cellSize: 1,
-				liveDensity: 0.5);
+				liveDensity: settings.liveDensity
+			);
 		}
 
 		static void render() {
 			for (int row = 0; row < board.rows; row++) {
 				for (int col = 0; col < board.columns; col++) {
-					var cell = board.cells[col, row];
-					if (cell.isAlive) {
-						Console.Write('*');
-					} else {
-						Console.Write(' ');
-					}
+					Console.Write(board.cells[col, row].isAlive ? '*' : '.');
 				}
-
 				Console.Write('\n');
 			}
 		}
 
 		static void Main(string[] args) {
-			reset();
+			loadSettings();
+
+			if (args.Length > 0 && File.Exists($"../../../{args[0]}"))
+				board = Board.loadState($"../../../{args[0]}");
+			else
+				reset();
+
 			while (true) {
 				Console.Clear();
 				render();

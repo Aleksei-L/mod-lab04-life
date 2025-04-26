@@ -145,6 +145,22 @@ namespace cli_life {
 			while (true) {
 				Console.Clear();
 				render();
+				if (Console.KeyAvailable) {
+					var key = Console.ReadKey(true).Key;
+					if (key == ConsoleKey.P) {
+						board.saveState("../../../pause_state.txt");
+						Console.WriteLine("Поле сохранено в pause_state.txt");
+						Console.Write("Продолжить? (Y/N): ");
+						while (true) {
+							var choice = Console.ReadKey(true).Key;
+							if (choice == ConsoleKey.Y)
+								break;
+							if (choice == ConsoleKey.N)
+								return;
+						}
+					}
+				}
+
 				board.advance();
 				Thread.Sleep(1000);
 			}

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.IO;
 using System.Threading;
 
 namespace cli_life {
@@ -39,12 +39,22 @@ namespace cli_life {
 		public int width => columns * cellSize;
 		public int height => rows * cellSize;
 
+		static Dictionary<string, List<(int dx, int dy)>> patterns = new() {
+			{ "block", new List<(int, int)> { (0, 0), (1, 0), (0, 1), (1, 1) } },
+			{ "beehive", new List<(int, int)> { (1, 0), (2, 0), (0, 1), (3, 1), (1, 2), (2, 2) } },
+			{ "loaf", new List<(int, int)> { (1, 0), (2, 0), (0, 1), (3, 1), (1, 2), (3, 2), (2, 3) } },
+			{ "boat", new List<(int, int)> { (0, 0), (1, 0), (0, 1), (2, 1), (1, 2) } },
+			{ "tub", new List<(int, int)> { (1, 0), (0, 1), (2, 1), (1, 2) } }
+		};
+
 		public Board(int width, int height, int cellSize, double liveDensity = .1) {
 			this.cellSize = cellSize;
 			cells = new Cell[width / cellSize, height / cellSize];
-			for (int x = 0; x < columns; x++)
-			for (int y = 0; y < rows; y++)
-				cells[x, y] = new Cell();
+			for (int x = 0; x < columns; x++) {
+				for (int y = 0; y < rows; y++) {
+					cells[x, y] = new Cell();
+				}
+			}
 
 			connectNeighbors();
 			randomize(liveDensity);
@@ -118,7 +128,7 @@ namespace cli_life {
 		public int countCombinations() {
 			var visited = new HashSet<Cell>();
 			int combos = 0;
-			foreach (var cell in cells) {
+			foreach (Cell cell in cells) {
 				if (cell.isAlive && !visited.Contains(cell)) {
 					combos++;
 					var stack = new Stack<Cell>();
@@ -127,7 +137,7 @@ namespace cli_life {
 						var c = stack.Pop();
 						if (!visited.Add(c))
 							continue;
-						foreach (var n in c.neighbors) {
+						foreach (Cell n in c.neighbors) {
 							if (n.isAlive && !visited.Contains(n))
 								stack.Push(n);
 						}
@@ -136,6 +146,32 @@ namespace cli_life {
 			}
 
 			return combos;
+		}
+
+		public Dictionary<string, int> countPatterns() {
+			var counts = patterns.Keys.ToDictionary(k => k, k => 0);
+			foreach (var kv in patterns) {
+				var name = kv.Key;
+				var shape = kv.Value;
+				for (int x = 0; x < columns; x++) {
+					for (int y = 0; y < rows; y++) {
+						bool ok = true;
+						foreach (var d in shape) {
+							int xx = (x + d.dx + columns) % columns;
+							int yy = (y + d.dy + rows) % rows;
+							if (!cells[xx, yy].isAlive) {
+								ok = false;
+								break;
+							}
+						}
+
+						if (ok)
+							counts[name]++;
+					}
+				}
+			}
+
+			return counts;
 		}
 	}
 
@@ -188,6 +224,11 @@ namespace cli_life {
 						int live = board.countLiveCells();
 						int combos = board.countCombinations();
 						Console.WriteLine($"Живых клеток: {live}, комбинаций: {combos}");
+
+						var patterns = board.countPatterns();
+						Console.WriteLine("Статические фигуры:");
+						foreach (var kv in patterns)
+							Console.WriteLine($"{kv.Key}: {kv.Value}");
 
 						Console.Write("Продолжить? (Y/N): ");
 						while (true) {
